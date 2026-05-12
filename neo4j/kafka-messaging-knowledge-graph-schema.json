@@ -1,0 +1,874 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Kafka Messaging Applications Knowledge Graph Schema",
+  "description": "A comprehensive schema for modeling messaging applications that use Apache Kafka for event streaming and data processing",
+  "version": "1.0.0",
+  "created": "2026-05-12",
+  
+  "entities": {
+    "Application": {
+      "description": "A software application that produces or consumes messages via Kafka",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the application",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Application name",
+          "required": true
+        },
+        "type": {
+          "type": "string",
+          "enum": ["producer", "consumer", "stream-processor", "hybrid"],
+          "description": "Application role in the messaging system",
+          "required": true
+        },
+        "language": {
+          "type": "string",
+          "description": "Primary programming language (e.g., TypeScript, Python, Java)",
+          "required": true
+        },
+        "framework": {
+          "type": "string",
+          "description": "Main framework used (e.g., Express.js, Flask, Spring Boot)",
+          "required": false
+        },
+        "version": {
+          "type": "string",
+          "description": "Application version",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "description": "Application purpose and functionality",
+          "required": false
+        },
+        "repository_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Source code repository URL",
+          "required": false
+        },
+        "deployment_type": {
+          "type": "string",
+          "enum": ["docker", "kubernetes", "serverless", "bare-metal", "cloud-native"],
+          "description": "Deployment method",
+          "required": false
+        }
+      }
+    },
+    
+    "KafkaCluster": {
+      "description": "Apache Kafka cluster infrastructure",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique cluster identifier",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Cluster name",
+          "required": true
+        },
+        "version": {
+          "type": "string",
+          "description": "Kafka version (e.g., 7.5.0)",
+          "required": true
+        },
+        "bootstrap_servers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of broker addresses",
+          "required": true
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production", "test"],
+          "description": "Deployment environment",
+          "required": true
+        },
+        "replication_factor": {
+          "type": "integer",
+          "description": "Default replication factor for topics",
+          "required": false
+        },
+        "num_partitions": {
+          "type": "integer",
+          "description": "Default number of partitions for topics",
+          "required": false
+        }
+      }
+    },
+    
+    "Topic": {
+      "description": "Kafka topic for message streaming",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique topic identifier",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Topic name",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "description": "Topic purpose and data description",
+          "required": false
+        },
+        "partitions": {
+          "type": "integer",
+          "description": "Number of partitions",
+          "required": true
+        },
+        "replication_factor": {
+          "type": "integer",
+          "description": "Replication factor",
+          "required": true
+        },
+        "retention_ms": {
+          "type": "integer",
+          "description": "Message retention time in milliseconds",
+          "required": false
+        },
+        "cleanup_policy": {
+          "type": "string",
+          "enum": ["delete", "compact", "delete,compact"],
+          "description": "Topic cleanup policy",
+          "required": false
+        },
+        "auto_create": {
+          "type": "boolean",
+          "description": "Whether topic is auto-created",
+          "required": false
+        }
+      }
+    },
+    
+    "Message": {
+      "description": "Message or event transmitted through Kafka",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique message identifier",
+          "required": true
+        },
+        "schema_name": {
+          "type": "string",
+          "description": "Name of the message schema",
+          "required": true
+        },
+        "schema_version": {
+          "type": "string",
+          "description": "Schema version",
+          "required": true
+        },
+        "format": {
+          "type": "string",
+          "enum": ["json", "avro", "protobuf", "string", "binary"],
+          "description": "Message serialization format",
+          "required": true
+        },
+        "key_field": {
+          "type": "string",
+          "description": "Field used as message key",
+          "required": false
+        },
+        "timestamp_field": {
+          "type": "string",
+          "description": "Field containing timestamp",
+          "required": false
+        },
+        "schema": {
+          "type": "object",
+          "description": "JSON schema or structure definition",
+          "required": true
+        }
+      }
+    },
+    
+    "Producer": {
+      "description": "Kafka producer component within an application",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique producer identifier",
+          "required": true
+        },
+        "client_id": {
+          "type": "string",
+          "description": "Kafka client ID",
+          "required": true
+        },
+        "library": {
+          "type": "string",
+          "description": "Kafka client library (e.g., kafkajs, confluent-kafka)",
+          "required": true
+        },
+        "library_version": {
+          "type": "string",
+          "description": "Client library version",
+          "required": true
+        },
+        "acks": {
+          "type": "string",
+          "enum": ["0", "1", "all"],
+          "description": "Acknowledgment level",
+          "required": false
+        },
+        "compression_type": {
+          "type": "string",
+          "enum": ["none", "gzip", "snappy", "lz4", "zstd"],
+          "description": "Message compression type",
+          "required": false
+        },
+        "retry_config": {
+          "type": "object",
+          "properties": {
+            "retries": {
+              "type": "integer"
+            },
+            "initial_retry_time": {
+              "type": "integer"
+            }
+          },
+          "description": "Retry configuration",
+          "required": false
+        }
+      }
+    },
+    
+    "Consumer": {
+      "description": "Kafka consumer component within an application",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique consumer identifier",
+          "required": true
+        },
+        "group_id": {
+          "type": "string",
+          "description": "Consumer group ID",
+          "required": true
+        },
+        "library": {
+          "type": "string",
+          "description": "Kafka client library",
+          "required": true
+        },
+        "library_version": {
+          "type": "string",
+          "description": "Client library version",
+          "required": true
+        },
+        "auto_offset_reset": {
+          "type": "string",
+          "enum": ["earliest", "latest", "none"],
+          "description": "Offset reset strategy",
+          "required": false
+        },
+        "enable_auto_commit": {
+          "type": "boolean",
+          "description": "Whether to auto-commit offsets",
+          "required": false
+        },
+        "max_poll_records": {
+          "type": "integer",
+          "description": "Maximum records per poll",
+          "required": false
+        },
+        "session_timeout_ms": {
+          "type": "integer",
+          "description": "Session timeout in milliseconds",
+          "required": false
+        }
+      }
+    },
+    
+    "ConsumerGroup": {
+      "description": "Kafka consumer group for coordinated consumption",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique consumer group identifier",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Consumer group name",
+          "required": true
+        },
+        "state": {
+          "type": "string",
+          "enum": ["stable", "preparing-rebalance", "completing-rebalance", "dead", "empty"],
+          "description": "Consumer group state",
+          "required": false
+        },
+        "protocol_type": {
+          "type": "string",
+          "description": "Group protocol type",
+          "required": false
+        },
+        "members_count": {
+          "type": "integer",
+          "description": "Number of active members",
+          "required": false
+        }
+      }
+    },
+    
+    "DataStore": {
+      "description": "Data storage system used by applications",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique data store identifier",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Data store name",
+          "required": true
+        },
+        "type": {
+          "type": "string",
+          "enum": ["relational", "nosql", "in-memory", "file-system", "object-storage"],
+          "description": "Data store type",
+          "required": true
+        },
+        "technology": {
+          "type": "string",
+          "description": "Specific technology (e.g., SQLite, PostgreSQL, MongoDB, Redis)",
+          "required": true
+        },
+        "purpose": {
+          "type": "string",
+          "enum": ["persistence", "cache", "state-store", "analytics", "backup"],
+          "description": "Primary purpose",
+          "required": true
+        }
+      }
+    },
+    
+    "API": {
+      "description": "REST or other API exposed by applications",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique API identifier",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "description": "API name",
+          "required": true
+        },
+        "type": {
+          "type": "string",
+          "enum": ["rest", "graphql", "grpc", "websocket"],
+          "description": "API type",
+          "required": true
+        },
+        "base_url": {
+          "type": "string",
+          "description": "Base URL or path",
+          "required": false
+        },
+        "version": {
+          "type": "string",
+          "description": "API version",
+          "required": false
+        },
+        "authentication": {
+          "type": "string",
+          "enum": ["none", "basic", "bearer", "oauth2", "api-key"],
+          "description": "Authentication method",
+          "required": false
+        }
+      }
+    },
+    
+    "Endpoint": {
+      "description": "API endpoint for data ingestion or retrieval",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique endpoint identifier",
+          "required": true
+        },
+        "path": {
+          "type": "string",
+          "description": "Endpoint path",
+          "required": true
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+          "description": "HTTP method",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "description": "Endpoint purpose",
+          "required": false
+        },
+        "request_schema": {
+          "type": "object",
+          "description": "Request body schema",
+          "required": false
+        },
+        "response_schema": {
+          "type": "object",
+          "description": "Response body schema",
+          "required": false
+        }
+      }
+    },
+    
+    "ProcessingLogic": {
+      "description": "Business logic for processing messages",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique logic identifier",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Processing logic name",
+          "required": true
+        },
+        "type": {
+          "type": "string",
+          "enum": ["transformation", "aggregation", "filtering", "enrichment", "validation", "routing"],
+          "description": "Processing type",
+          "required": true
+        },
+        "description": {
+          "type": "string",
+          "description": "Logic description",
+          "required": false
+        },
+        "implementation": {
+          "type": "string",
+          "description": "Implementation details or code reference",
+          "required": false
+        }
+      }
+    },
+    
+    "Dependency": {
+      "description": "External library or service dependency",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique dependency identifier",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Dependency name",
+          "required": true
+        },
+        "version": {
+          "type": "string",
+          "description": "Dependency version",
+          "required": true
+        },
+        "type": {
+          "type": "string",
+          "enum": ["library", "framework", "service", "tool"],
+          "description": "Dependency type",
+          "required": true
+        },
+        "purpose": {
+          "type": "string",
+          "description": "Why this dependency is used",
+          "required": false
+        }
+      }
+    }
+  },
+  
+  "relationships": {
+    "PRODUCES_TO": {
+      "description": "Application produces messages to a topic",
+      "from": "Application",
+      "to": "Topic",
+      "properties": {
+        "message_type": {
+          "type": "string",
+          "description": "Type of messages produced"
+        },
+        "rate": {
+          "type": "string",
+          "description": "Production rate (e.g., '1000 msg/sec')"
+        },
+        "trigger": {
+          "type": "string",
+          "description": "What triggers message production"
+        }
+      }
+    },
+    
+    "CONSUMES_FROM": {
+      "description": "Application consumes messages from a topic",
+      "from": "Application",
+      "to": "Topic",
+      "properties": {
+        "message_type": {
+          "type": "string",
+          "description": "Type of messages consumed"
+        },
+        "processing_type": {
+          "type": "string",
+          "enum": ["real-time", "batch", "streaming"],
+          "description": "Processing approach"
+        },
+        "offset_strategy": {
+          "type": "string",
+          "description": "Offset management strategy"
+        }
+      }
+    },
+    
+    "BELONGS_TO_CLUSTER": {
+      "description": "Topic belongs to a Kafka cluster",
+      "from": "Topic",
+      "to": "KafkaCluster",
+      "properties": {
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When topic was created"
+        }
+      }
+    },
+    
+    "CONNECTS_TO_CLUSTER": {
+      "description": "Application connects to a Kafka cluster",
+      "from": "Application",
+      "to": "KafkaCluster",
+      "properties": {
+        "connection_type": {
+          "type": "string",
+          "enum": ["producer", "consumer", "admin"],
+          "description": "Type of connection"
+        },
+        "security_protocol": {
+          "type": "string",
+          "enum": ["PLAINTEXT", "SSL", "SASL_PLAINTEXT", "SASL_SSL"],
+          "description": "Security protocol used"
+        }
+      }
+    },
+    
+    "HAS_PRODUCER": {
+      "description": "Application has a producer component",
+      "from": "Application",
+      "to": "Producer",
+      "properties": {
+        "is_primary": {
+          "type": "boolean",
+          "description": "Whether this is the primary producer"
+        }
+      }
+    },
+    
+    "HAS_CONSUMER": {
+      "description": "Application has a consumer component",
+      "from": "Application",
+      "to": "Consumer",
+      "properties": {
+        "is_primary": {
+          "type": "boolean",
+          "description": "Whether this is the primary consumer"
+        }
+      }
+    },
+    
+    "USES_MESSAGE_SCHEMA": {
+      "description": "Topic or application uses a message schema",
+      "from": ["Topic", "Producer", "Consumer"],
+      "to": "Message",
+      "properties": {
+        "schema_evolution": {
+          "type": "string",
+          "enum": ["backward", "forward", "full", "none"],
+          "description": "Schema compatibility mode"
+        }
+      }
+    },
+    
+    "MEMBER_OF_GROUP": {
+      "description": "Consumer is member of a consumer group",
+      "from": "Consumer",
+      "to": "ConsumerGroup",
+      "properties": {
+        "partition_assignment": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "description": "Assigned partitions"
+        }
+      }
+    },
+    
+    "SUBSCRIBES_TO": {
+      "description": "Consumer group subscribes to topics",
+      "from": "ConsumerGroup",
+      "to": "Topic",
+      "properties": {
+        "subscription_pattern": {
+          "type": "string",
+          "description": "Topic subscription pattern"
+        }
+      }
+    },
+    
+    "STORES_IN": {
+      "description": "Application stores data in a data store",
+      "from": "Application",
+      "to": "DataStore",
+      "properties": {
+        "operation_type": {
+          "type": "string",
+          "enum": ["read", "write", "read-write"],
+          "description": "Type of operations performed"
+        },
+        "data_type": {
+          "type": "string",
+          "description": "Type of data stored"
+        }
+      }
+    },
+    
+    "EXPOSES_API": {
+      "description": "Application exposes an API",
+      "from": "Application",
+      "to": "API",
+      "properties": {
+        "port": {
+          "type": "integer",
+          "description": "Port number"
+        }
+      }
+    },
+    
+    "HAS_ENDPOINT": {
+      "description": "API has an endpoint",
+      "from": "API",
+      "to": "Endpoint",
+      "properties": {
+        "is_public": {
+          "type": "boolean",
+          "description": "Whether endpoint is publicly accessible"
+        }
+      }
+    },
+    
+    "TRIGGERS_PRODUCTION": {
+      "description": "Endpoint triggers message production",
+      "from": "Endpoint",
+      "to": "Producer",
+      "properties": {
+        "sync_async": {
+          "type": "string",
+          "enum": ["synchronous", "asynchronous"],
+          "description": "Production mode"
+        }
+      }
+    },
+    
+    "APPLIES_LOGIC": {
+      "description": "Consumer applies processing logic",
+      "from": "Consumer",
+      "to": "ProcessingLogic",
+      "properties": {
+        "order": {
+          "type": "integer",
+          "description": "Processing order"
+        }
+      }
+    },
+    
+    "TRANSFORMS_TO": {
+      "description": "Processing logic transforms one message type to another",
+      "from": "ProcessingLogic",
+      "to": "Message",
+      "properties": {
+        "transformation_type": {
+          "type": "string",
+          "description": "Type of transformation applied"
+        }
+      }
+    },
+    
+    "DEPENDS_ON": {
+      "description": "Application depends on a library or service",
+      "from": "Application",
+      "to": "Dependency",
+      "properties": {
+        "dependency_type": {
+          "type": "string",
+          "enum": ["runtime", "development", "optional"],
+          "description": "Type of dependency"
+        }
+      }
+    },
+    
+    "COMMUNICATES_WITH": {
+      "description": "Application communicates with another application",
+      "from": "Application",
+      "to": "Application",
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "description": "Communication protocol"
+        },
+        "direction": {
+          "type": "string",
+          "enum": ["unidirectional", "bidirectional"],
+          "description": "Communication direction"
+        }
+      }
+    }
+  },
+  
+  "example_instances": {
+    "description": "Example instances based on iot-usage-kafka-logger and fixium-mobile-consumer",
+    "applications": [
+      {
+        "id": "app-001",
+        "name": "iot-usage-kafka-logger",
+        "type": "producer",
+        "language": "TypeScript",
+        "framework": "Express.js",
+        "version": "1.0.0",
+        "description": "IoT Usage Kafka Logger API - REST API for logging mobile device usage data",
+        "deployment_type": "docker"
+      },
+      {
+        "id": "app-002",
+        "name": "fixium-mobile-consumer",
+        "type": "consumer",
+        "language": "Python",
+        "framework": "confluent-kafka",
+        "version": "1.0.0",
+        "description": "Mobile Data Usage Billing Consumer - Processes usage events and generates billing",
+        "deployment_type": "docker"
+      }
+    ],
+    "topics": [
+      {
+        "id": "topic-001",
+        "name": "mobile-usage",
+        "description": "Mobile device usage data events",
+        "partitions": 1,
+        "replication_factor": 1,
+        "auto_create": true
+      }
+    ],
+    "messages": [
+      {
+        "id": "msg-001",
+        "schema_name": "MobileUsageEvent",
+        "schema_version": "1.0",
+        "format": "json",
+        "key_field": "device_id",
+        "timestamp_field": "end_time",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "device_id": {"type": "string"},
+            "usage": {"type": "number"},
+            "start_time": {"type": "string", "format": "date-time"},
+            "end_time": {"type": "string", "format": "date-time"}
+          }
+        }
+      }
+    ],
+    "data_stores": [
+      {
+        "id": "ds-001",
+        "name": "usage-database",
+        "type": "relational",
+        "technology": "SQLite",
+        "purpose": "persistence"
+      }
+    ],
+    "processing_logic": [
+      {
+        "id": "logic-001",
+        "name": "billing-aggregation",
+        "type": "aggregation",
+        "description": "Aggregates usage data per device and calculates billing at $0.10 per MB"
+      }
+    ]
+  },
+  
+  "query_patterns": {
+    "description": "Common graph query patterns for analysis",
+    "patterns": [
+      {
+        "name": "Find all producers for a topic",
+        "cypher": "MATCH (app:Application)-[:PRODUCES_TO]->(topic:Topic {name: $topicName}) RETURN app"
+      },
+      {
+        "name": "Find all consumers for a topic",
+        "cypher": "MATCH (app:Application)-[:CONSUMES_FROM]->(topic:Topic {name: $topicName}) RETURN app"
+      },
+      {
+        "name": "Find message flow between applications",
+        "cypher": "MATCH (producer:Application)-[:PRODUCES_TO]->(topic:Topic)<-[:CONSUMES_FROM]-(consumer:Application) RETURN producer, topic, consumer"
+      },
+      {
+        "name": "Find all dependencies of an application",
+        "cypher": "MATCH (app:Application {name: $appName})-[:DEPENDS_ON]->(dep:Dependency) RETURN dep"
+      },
+      {
+        "name": "Find processing pipeline",
+        "cypher": "MATCH (consumer:Consumer)-[:APPLIES_LOGIC]->(logic:ProcessingLogic) RETURN consumer, logic ORDER BY logic.order"
+      },
+      {
+        "name": "Find data lineage",
+        "cypher": "MATCH path = (endpoint:Endpoint)-[:TRIGGERS_PRODUCTION]->(producer:Producer)-[:PRODUCES_TO]->(topic:Topic)<-[:CONSUMES_FROM]-(consumer:Consumer)-[:STORES_IN]->(store:DataStore) RETURN path"
+      }
+    ]
+  },
+  
+  "metadata": {
+    "graph_database_recommendations": [
+      "Neo4j - Most popular, excellent Cypher query language",
+      "Amazon Neptune - Managed graph database service",
+      "ArangoDB - Multi-model database with graph capabilities",
+      "JanusGraph - Distributed graph database",
+      "TigerGraph - High-performance graph analytics"
+    ],
+    "visualization_tools": [
+      "Neo4j Browser",
+      "Gephi",
+      "Cytoscape",
+      "GraphXR",
+      "yFiles"
+    ],
+    "use_cases": [
+      "Message flow analysis and tracing",
+      "Impact analysis for schema changes",
+      "Dependency management and tracking",
+      "Performance bottleneck identification",
+      "Data lineage and governance",
+      "System documentation and discovery",
+      "Capacity planning and scaling decisions",
+      "Incident investigation and root cause analysis"
+    ]
+  }
+}
