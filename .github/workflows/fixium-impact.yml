@@ -1,0 +1,70 @@
+name: Fixium Impact Analysis
+
+on:
+  issue_comment:
+    types: [created]
+
+# Only allow one analysis per issue at a time
+concurrency:
+  group: fixium-impact-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  fixium-impact:
+    # Only run on ISSUE comments (not PR comments) that contain "Fixium:analyzeimpact"
+    if: |
+      !github.event.issue.pull_request &&
+      contains(github.event.comment.body, 'Fixium:analyzeimpact')
+    
+    runs-on: ubuntu-latest
+    
+    # Required permissions
+    permissions:
+      contents: read
+      issues: write
+      packages: read
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.MY_GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      
+      - name: Run Fixium Impact Analysis (Docker)
+        run: |
+          docker run --rm \
+            --entrypoint python \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            -e GITHUB_TOKEN="${{ secrets.MY_GITHUB_TOKEN }}" \
+            -e BOBSHELL_API_KEY="${{ secrets.BOBSHELL_API_KEY }}" \
+            -e FIXIUM_AUTHORIZED_USERS="${{ secrets.FIXIUM_AUTHORIZED_USERS }}" \
+            -e GITHUB_REPOSITORY="${{ github.repository }}" \
+            -e GITHUB_OWNER="${{ github.repository_owner }}" \
+            -e GITHUB_REPO="${{ github.event.repository.name }}" \
+            -e ISSUE_NUMBER="${{ github.event.issue.number }}" \
+            -e COMMENT_BODY="${{ github.event.comment.body }}" \
+            -e COMMENT_USER="${{ github.event.comment.user.login }}" \
+            -e GITHUB_WORKSPACE="/workspace" \
+            -e NEO4J_URI="${{ secrets.NEO4J_URI }}" \
+            -e NEO4J_USERNAME="${{ secrets.NEO4J_USERNAME }}" \
+            -e NEO4J_PASSWORD="${{ secrets.NEO4J_PASSWORD }}" \
+            -e NEO4J_DATABASE="${{ secrets.NEO4J_DATABASE }}" \
+            ghcr.io/hpai1990/fixium:latest \
+            -m fixium.impact_main
+      
+      - name: Upload analysis artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixium-impact-${{ github.event.issue.number }}
+          path: |
+            impact_analysis_issue${{ github.event.issue.number }}.json
+          retention-days: 30
+          if-no-files-found: ignore
+
+
+# Made with Bob
