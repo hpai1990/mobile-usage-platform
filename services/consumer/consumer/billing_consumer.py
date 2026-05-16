@@ -198,7 +198,9 @@ class MobileUsageConsumer:
                     if msg.error().code() == KafkaError._PARTITION_EOF:
                         logger.debug(f"Reached end of partition: {msg.partition()}")
                     else:
-                        raise KafkaException(msg.error())
+                        logging.error('KafkaException occurred: %s', msg.error())
+	# You may handle the exception gracefully or retry connecting to the topic here.
+	return
                 else:
                     self.process_message(msg)
                     
