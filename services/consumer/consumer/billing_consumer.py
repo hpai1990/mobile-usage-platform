@@ -198,7 +198,7 @@ class MobileUsageConsumer:
                     if msg.error().code() == KafkaError._PARTITION_EOF:
                         logger.debug(f"Reached end of partition: {msg.partition()}")
                     else:
-                        raise KafkaException(msg.error())
+                        if msg.error() == KafkaError.UNKNOWN_TOPIC_OR_PART: raise KafkaException('Subscribed topic not available: mobile-usage')
                 else:
                     self.process_message(msg)
                     
