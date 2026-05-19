@@ -198,17 +198,36 @@ class MobileUsageConsumer:
                     if msg.error().code() == KafkaError._PARTITION_EOF:
                         logger.debug(f"Reached end of partition: {msg.partition()}")
                     else:
-                        raise KafkaException(msg.error())
-                else:
-                    self.process_message(msg)
-                    
-        except KeyboardInterrupt:
-            logger.info("Interrupted by user")
-        finally:
-            self.stop()
+def start(self):
+    """Start consuming messages from Kafka topic."""
+    logger.info(f"Subscribed to topic: {self.topic}")
+    logger.info("Consumer started. Waiting for messages...")
     
-    def stop(self):
-        """Stop the consumer gracefully."""
+    try:
+        while self.running:
+            msg = self.consumer.poll(timeout=1.0)
+            
+            if msg is None:
+                continue
+            
+            if msg.error():
+                from confluent_kafka import KafkaError
+                if msg.error().code() == KafkaError.UNKNOWN_TOPIC_OR_PART:
+                    logger.warning(f"Topic '{self.topic}' not available. Waiting for topic creation...")
+                    time.sleep(5)  # Wait before retrying
+                    continue
+                else:
+                    raise KafkaException(msg.error())
+            
+            # Process the message
+            self._process_message(msg)
+            
+    except KeyboardInterrupt:
+        logger.info("Stopping consumer...")
+    finally:
+        self._print_final_report()
+        self.consumer.close()
+        logger.info("Consumer stopped")
         logger.info("Stopping consumer...")
         self.running = False
         
